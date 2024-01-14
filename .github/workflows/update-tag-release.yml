@@ -7,20 +7,12 @@ on:
   push:
     branches: main
     paths:
-      - caddy-cloudflare/Dockerfile  # file updated by Dependabot used as reference
+      - caddy-cloudflare-crowdsec/Dockerfile  # file updated by Dependabot used as reference
 
 # Environment variables available to all jobs and steps in this workflow
 env:
   CADDY_BUILDS: |  # list of all Caddy Docker custom builds
-    caddy-cloudflare
-    caddy-cloudflare-ddns
     caddy-cloudflare-crowdsec
-    caddy-cloudflare-ddns-crowdsec
-    caddy-duckdns
-    caddy-duckdns-ddns
-    caddy-duckdns-crowdsec
-    caddy-duckdns-ddns-crowdsec
-    caddy-crowdsec
 
 # Jobs to run once the workflow is triggered
 jobs:
@@ -40,7 +32,7 @@ jobs:
 
       - name: Parse Caddy version
         id: version
-        run: echo "version=$(grep -Eo 'caddy:[0-9]+\.[0-9]+\.[0-9]+$' caddy-cloudflare/Dockerfile | cut -d ':' -f2)" | tee -a $GITHUB_OUTPUT
+        run: echo "version=$(grep -Eo 'caddy:[0-9]+\.[0-9]+\.[0-9]+$' caddy-cloudflare-crowdsec/Dockerfile | cut -d ':' -f2)" | tee -a $GITHUB_OUTPUT
   
   # Job to update the Caddy version in all Dockerfiles and create a tag
   update:
@@ -101,9 +93,8 @@ jobs:
         run: |
           echo "RELEASE_TEXT<<EOF" >> $GITHUB_ENV
           for caddy_build in $CADDY_BUILDS; do
-            echo "- $caddy_build: [Source](https://github.com/serfriz/caddy-custom-builds/tree/main/$caddy_build) / \
-            [GitHub Package](https://ghcr.io/serfriz/$caddy_build) / [Docker Hub](https://hub.docker.com/r/serfriz/$caddy_build) / \
-            [Quay Package](https://quay.io/serfriz/$caddy_build)" >> $GITHUB_ENV
+            echo "- $caddy_build: [Source](https://github.com/nicjay/caddy-custom-builds/tree/main/$caddy_build) / \
+            [GitHub Package](https://ghcr.io/nicjay/$caddy_build) >> $GITHUB_ENV
           done
           echo "EOF" >> $GITHUB_ENV
 

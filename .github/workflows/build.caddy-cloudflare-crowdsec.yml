@@ -1,4 +1,4 @@
-# Workflow to build and push a Docker image to Docker Hub, GitHub and Quay Container Registries
+# Workflow to build and push a Docker image to GitHub Container Registry
 name: Build caddy-cloudflare-crowdsec
 
 # Controls when the action will run
@@ -13,7 +13,7 @@ on:
 env:
   DOCKER_BUILDKIT: 1
   DOCKER_NAME: caddy-cloudflare-crowdsec
-  DOCKER_DESCRIPTION: "Caddy Docker custom build with Cloudflare DNS/IPs and CrowdSec Bouncer modules"
+  DOCKER_DESCRIPTION: "Caddy Docker custom build with Cloudflare DNS and CrowdSec Bouncer modules"
 
 # Jobs to run once the workflow is triggered
 jobs:
@@ -43,9 +43,7 @@ jobs:
         id: metadata
         with:
           images: |
-            docker.io/${{ github.actor }}/${{ env.DOCKER_NAME }}
             ghcr.io/${{ github.actor }}/${{ env.DOCKER_NAME }}
-            quay.io/${{ github.actor }}/${{ env.DOCKER_NAME }}
           tags: |
             type=semver,pattern={{version}},value=v${{ steps.version.outputs.version }}
             type=semver,pattern={{major}}.{{minor}},value=v${{ steps.version.outputs.version }}
@@ -72,25 +70,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Login to GitHub Container Repository
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
-
-      - name: Login to Quay Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: quay.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.QUAY_TOKEN }}
 
       - name: Build and publish container image
         uses: docker/build-push-action@v5
