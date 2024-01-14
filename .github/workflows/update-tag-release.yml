@@ -44,7 +44,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PERSONAL_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           ref: main
 
       - name: Replace Caddy version in all Dockerfiles
@@ -104,6 +104,3 @@ jobs:
           tag_name: v${{ needs.metadata.outputs.version }}
           body: |
             Caddy release notes: https://github.com/caddyserver/caddy/releases/tag/v${{ needs.metadata.outputs.version }}
-
-            Custom builds:
-            ${{ env.RELEASE_TEXT }}
