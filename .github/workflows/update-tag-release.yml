@@ -89,15 +89,6 @@ jobs:
         with:
           ref: main
 
-      - name: Generate release text
-        run: |
-          echo "RELEASE_TEXT<<EOF" >> $GITHUB_ENV
-          for caddy_build in $CADDY_BUILDS; do
-            echo "- $caddy_build: [Source](https://github.com/nicjay/caddy-custom-builds/tree/main/$caddy_build) / \
-            [GitHub Package](https://ghcr.io/nicjay/$caddy_build) >> $GITHUB_ENV
-          done
-          echo "EOF" >> $GITHUB_ENV
-
       - name: Push release to github repository
         uses: softprops/action-gh-release@v1
         with:
