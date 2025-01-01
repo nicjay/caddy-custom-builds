@@ -32,7 +32,7 @@ jobs:
 
       - name: Parse Caddy version
         id: version
-        run: echo "version=$(grep -Eo 'caddy:[0-9]+\.[0-9]+\.[0-9]+$' caddy-cloudflare-crowdsec/Dockerfile | cut -d ':' -f2)" | tee -a $GITHUB_OUTPUT
+        run: echo "version=$(grep -Eo 'caddy:[0-9]+\.[0-9]+(\.[0-9]+)?$' caddy-cloudflare-crowdsec/Dockerfile | cut -d ':' -f2)" | tee -a $GITHUB_OUTPUT
   
   # Job to update the Caddy version in all Dockerfiles and create a tag
   update:
@@ -50,7 +50,7 @@ jobs:
       - name: Replace Caddy version in all Dockerfiles
         run: |
           for caddy_build in $CADDY_BUILDS; do
-            sed -i "s/caddy:[0-9]\+\.[0-9]\+\.[0-9]\+/caddy:${{ needs.metadata.outputs.version }}/g" ./$caddy_build/Dockerfile
+            sed -i "s/caddy:[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?/caddy:${{ needs.metadata.outputs.version }}/g" ./$caddy_build/Dockerfile
           done
 
       - name: Import GPG key
