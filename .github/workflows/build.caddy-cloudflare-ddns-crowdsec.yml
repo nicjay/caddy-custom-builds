@@ -38,8 +38,8 @@ jobs:
         id: version
         run: |
           version=$(grep -Eo 'caddy:[0-9]+\.[0-9]+(\.[0-9]+)?$' $DOCKER_NAME/Dockerfile | cut -d ':' -f2)
-          if [[ ! "$version" =~ \.[0-9]+$ ]]; then
-            version="${version}.0" # Add .0 if the patch number is missing
+          if [[ "$version" =~ ^[0-9]+\.[0-9]+$ ]]; then
+            version="${version}.0"  # Add .0 if the patch number is missing
           fi
           echo "version=$version" | tee -a $GITHUB_OUTPUT
 
