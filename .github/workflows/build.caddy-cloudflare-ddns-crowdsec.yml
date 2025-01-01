@@ -37,12 +37,9 @@ jobs:
       - name: Parse Caddy version
         id: version
         run: |
-          version=$(grep -Eo 'caddy:[0-9]+\.[0-9]+(\.[0-9]+)?$' $DOCKER_NAME/Dockerfile | cut -d ':' -f2)
-          # Append .0 to versions without a patch number
-          if [[ ! $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            version="${version}.0"
-          fi
-          echo "version=$version" | tee -a $GITHUB_OUTPUT
+          version=$(grep -oE 'caddy:[0-9]+(\.[0-9]+){1,2}' $DOCKER_NAME/Dockerfile | cut -d: -f2)
+          version="${version%.*.*}.0.0" # Ensure at least major.minor.patch
+          echo "version=$(echo $version | cut -d. -f1-3)" | tee -a $GITHUB_OUTPUT
 
       - name: Generate image metadata with Caddy version
         uses: docker/metadata-action@v5
