@@ -60,6 +60,7 @@ jobs:
           git_user_signingkey: true
           git_commit_gpgsign: true
           git_tag_gpgsign: true
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Commit and push changes
         run: |
