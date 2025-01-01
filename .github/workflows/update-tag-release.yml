@@ -32,10 +32,7 @@ jobs:
 
       - name: Parse Caddy version
         id: version
-        run: |
-          version=$(grep -oE 'caddy:[0-9]+(\.[0-9]+){1,2}' $DOCKER_NAME/Dockerfile | cut -d: -f2)
-          version="${version%.*.*}.0.0" # Ensure at least major.minor.patch
-          echo "version=$(echo $version | cut -d. -f1-3)" | tee -a $GITHUB_OUTPUT
+        run: echo "version=$(grep -Eo 'caddy:[0-9]+\.[0-9]+(\.[0-9]+)?$' caddy-cloudflare-ddns-crowdsec/Dockerfile | cut -d ':' -f2)" | tee -a $GITHUB_OUTPUT
   
   # Job to update the Caddy version in all Dockerfiles and create a tag
   update:
