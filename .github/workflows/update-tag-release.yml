@@ -22,7 +22,8 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      version: ${{ steps.version.outputs.version }}
+      version_short: ${{ steps.version.outputs.version_short }} # i.e. 2.9
+      version_long: ${{ steps.version.outputs.version_long }} # i.e. 2.9.0
 
     steps:
       - name: Checkout repository
@@ -32,7 +33,13 @@ jobs:
 
       - name: Parse Caddy version
         id: version
-        run: echo "version=$(grep -Eo 'caddy:[0-9]+\.[0-9]+(\.[0-9]+)?$' caddy-cloudflare-ddns-crowdsec/Dockerfile | cut -d ':' -f2)" | tee -a $GITHUB_OUTPUT
+        run: |
+          version=$(grep -Eo 'caddy:[0-9]+\.[0-9]+(\.[0-9]+)?$' caddy-cloudflare-ddns-crowdsec/Dockerfile | cut -d ':' -f2)
+          echo "version_short=$version" | tee -a $GITHUB_OUTPUT
+          if [[ "$version" =~ ^[0-9]+\.[0-9]+$ ]]; then
+            version="${version}.0"  # Add .0 if the patch number is missing
+          fi
+          echo "version_long=$version" | tee -a $GITHUB_OUTPUT
   
   # Job to update the Caddy version in all Dockerfiles and create a tag
   update:
@@ -50,7 +57,7 @@ jobs:
       - name: Replace Caddy version in all Dockerfiles
         run: |
           for caddy_build in $CADDY_BUILDS; do
-            sed -i "s/caddy:[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?/caddy:${{ needs.metadata.outputs.version }}/g" ./$caddy_build/Dockerfile
+            sed -i "s/caddy:[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?/caddy:${{ needs.metadata.outputs.version_short }}/g" ./$caddy_build/Dockerfile
           done
 
       - name: Import GPG key
@@ -67,7 +74,7 @@ jobs:
           git add ./*/Dockerfile
           if [ "$(git diff HEAD)" ]
           then
-            git commit -S -m "Bump Caddy version to v${{ needs.metadata.outputs.version }} in all Dockerfiles"
+            git commit -S -m "Bump Caddy version to v${{ needs.metadata.outputs.version_long }} in all Dockerfiles"
             git push
           else
             echo "No changes detected"
@@ -75,7 +82,7 @@ jobs:
         
       - name: Create and push tag
         run: |
-          git tag -fs v${{ needs.metadata.outputs.version }} -m "Docker images built with Caddy v${{ needs.metadata.outputs.version }}"
+          git tag -fs v${{ needs.metadata.outputs.version_long }} -m "Docker images built with Caddy v${{ needs.metadata.outputs.version_long }}"
           git push --tags -f
 
   # Job to create a release
@@ -93,6 +100,6 @@ jobs:
       - name: Push release to github repository
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.metadata.outputs.version }}
+          tag_name: v${{ needs.metadata.outputs.version_long }}
           body: |
-            Caddy release notes: https://github.com/caddyserver/caddy/releases/tag/v${{ needs.metadata.outputs.version }}
+            Caddy release notes: https://github.com/caddyserver/caddy/releases/tag/v${{ needs.metadata.outputs.version_long }}
