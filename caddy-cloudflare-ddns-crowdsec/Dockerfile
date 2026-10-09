@@ -6,6 +6,6 @@ RUN xcaddy build \
     --with github.com/mholt/caddy-dynamicdns \
     --with github.com/hslatman/caddy-crowdsec-bouncer/http
 
-FROM caddy:2.11.6
+FROM caddy:2.11.7
 
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
